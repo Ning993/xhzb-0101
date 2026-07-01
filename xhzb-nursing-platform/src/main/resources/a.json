@@ -1,0 +1,29 @@
+{
+  "resource": "device.property",
+  "event": "report",
+  "event_time": "20260409T023907Z",
+  "event_time_ms": "2026-04-09T02:39:07.258Z",
+  "request_id": "3c452144-dd89-4600-b39d-b14a75ed145a",
+  "notify_data": {
+    "header": {
+      "app_id": "078fd18c45384cdfa4dc7d5db1b9a9ef",
+      "device_id": "69d4653b7f2e6c302f6492e0_smoke02",
+      "node_id": "smoke02",
+      "product_id": "69d4653b7f2e6c302f6492e0",
+      "gateway_id": "69d4653b7f2e6c302f6492e0_smoke02"
+    },
+    "body": {
+      "services": [
+        {
+          "service_id": "smoke_services",
+          "properties": {
+            "CurrentHumidity": 22,
+            "SmokeSensorState": 0,
+            "IndoorTemperature": 28
+          },
+          "event_time": "20260409T023907Z"
+        }
+      ]
+    }
+  }
+}
