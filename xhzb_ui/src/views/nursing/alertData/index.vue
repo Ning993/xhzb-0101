@@ -235,7 +235,6 @@ const handleSub = async (val) => {
     id: disposeId.value,
   };
   const res = await handleAlertRule(data);
-  debugger
   if (res.code === 200) {
     proxy.$modal.msgSuccess('操作成功');
     handleClose();

@@ -47,6 +47,9 @@ spring:
       chat:
         options:
           model: deepseek-chat
+    retry:
+      # AI 调用失败最多重试 1 次，避免占位 Key 下 401 重试风暴拖垮服务
+      max-attempts: 1
   # 资源信息
   messages:
     # 国际化资源文件路径
@@ -65,20 +68,20 @@ spring:
       enabled: true
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.100.168:3306/xhzb?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+    url: jdbc:mysql://localhost:3306/xhzb?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
     username: root
-    password: heima123
+    password: root
   # redis 配置
   data:
     redis:
       # 地址
-      host: 192.168.100.168
+      host: localhost
       # 端口，默认为6379
       port: 6379
       # 数据库索引
       database: 0
       # 密码
-      password: 123456
+      password:
       # 连接超时时间
       timeout: 10s
       jedis:
@@ -99,6 +102,8 @@ springdoc:
       packages-to-scan: com.xhzb
 # oss的配置，要根据自己实际情况来进行修改
 oss:
+  # 本地开发未配置真实密钥时置为false，跳过阿里云bucket初始化（文件上传不可用）
+  enabled: false
   endpoint: oss-cn-beijing.aliyuncs.com
   accessKeyId: ${OSS_ACCESS_KEY_ID}
   accessKeySecret: ${OSS_ACCESS_KEY_SECRET}
@@ -127,3 +132,10 @@ alert:
 
 dept:
   id: 201
+
+# 向量数据库(Redis Stack容器, 需支持RediSearch)
+vector:
+  redis:
+    host: localhost
+    port: 16379
+    password:

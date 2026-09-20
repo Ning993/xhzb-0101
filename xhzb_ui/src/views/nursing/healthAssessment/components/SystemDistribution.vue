@@ -1,5 +1,5 @@
 <template>
-  <div id="main1" ref="EcharRef" class="monitorContainer"></div>
+  <div ref="EcharRef" class="monitorContainer"></div>
 </template>
 
 <script setup>
@@ -40,7 +40,7 @@ onMounted(() => {
 
 // 初始化图表
 const initChart = () => {
-  const chartDom = document.getElementById('main1');
+  const chartDom = EcharRef.value;
   if (!chartDom) {
     console.error('找不到图表容器');
     return;

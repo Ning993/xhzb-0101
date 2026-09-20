@@ -39,5 +39,10 @@ public class AliOssConfigProperties {
      */
     private String bucketName ;
 
+    /**
+     * 是否启用阿里云OSS（默认启用；本地开发无密钥时设为false跳过初始化调用）
+     */
+    private boolean enabled = true;
+
 }
 

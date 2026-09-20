@@ -26,7 +26,7 @@ import com.xhzb.common.core.page.TableDataInfo;
 
 /**
  * 报警数据Controller
- * 
+ *
  * @author ruoyi
  * @date 2026-04-10
  */
@@ -111,5 +111,18 @@ public class AlertDataController extends BaseController
     public AjaxResult remove(@Schema(name = "报警数据ID", requiredMode = Schema.RequiredMode.REQUIRED) @PathVariable Long[] ids)
     {
         return toAjax(alertDataService.deleteAlertDataByIds(ids));
+    }
+
+    /**
+     * 处理报警数据
+     */
+    @PreAuthorize("@ss.hasPermi('nursing:alertData:edit')")
+    @Log(title = "报警数据", businessType = BusinessType.UPDATE)
+    @PutMapping("/handleAlertData")
+    @Operation(summary = "处理报警数据")
+    public AjaxResult handleAlertData(@RequestBody AlertData alertData)
+    {
+        alertDataService.handleAlertData(alertData.getId(), alertData.getProcessingResult(), alertData.getProcessingTime());
+        return success();
     }
 }

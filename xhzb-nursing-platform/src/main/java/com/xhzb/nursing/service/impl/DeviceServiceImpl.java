@@ -127,6 +127,81 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device> impleme
     }
 
     /**
+     * 查询设备物模型属性状态
+     * @param params 查询参数（deviceId/iotId 等）
+     * @return
+     */
+    @Override
+    public AjaxResult queryDevicePropertyStatus(Map<String, Object> params) {
+
+        // 参数校验，兼容 deviceId / iotId 两种 key
+        Object deviceIdObj = params.get("deviceId");
+        if (deviceIdObj == null || StringUtils.isEmpty(deviceIdObj.toString())) {
+            deviceIdObj = params.get("iotId");
+        }
+        if (deviceIdObj == null || StringUtils.isEmpty(deviceIdObj.toString())) {
+            throw new BaseException("参数不能为空");
+        }
+        String deviceId = deviceIdObj.toString();
+
+        // 调用iot平台，查询设备影子
+        ShowDeviceShadowRequest request = new ShowDeviceShadowRequest();
+        request.setDeviceId(deviceId);
+        ShowDeviceShadowResponse response;
+        try {
+            response = client.showDeviceShadow(request);
+        } catch (Exception e) {
+            throw new BaseException("华为云接口调用，查询设备属性状态失败");
+        }
+
+        // 获取数据
+        List<DeviceShadowData> shadow = response.getShadow();
+        if (CollUtil.isEmpty(shadow)) {
+            return AjaxResult.success(List.of());
+        }
+        // 解析数据
+        DeviceShadowProperties reported = shadow.get(0).getReported();
+        // 转换为json对象
+        JSONObject jsonObject = JSONUtil.parseObj(reported.getProperties());
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        // 获取时间
+        String eventTimeStr = reported.getEventTime();
+        LocalDateTime localDateTime = LocalDateTimeUtil.parse(eventTimeStr, "yyyyMMdd'T'HHmmss'Z'");
+        LocalDateTime eventTime = DateTimeZoneConverter.utcToShanghai(localDateTime);
+
+        jsonObject.forEach((k, v) -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("functionId", k);
+            map.put("eventTime", eventTime);
+            map.put("value", v);
+            result.add(map);
+        });
+
+        // 内存分页（若前端传入 pageNum / pageSize）
+        List<Map<String, Object>> paged = result;
+        Object pageNumObj = params.get("pageNum");
+        Object pageSizeObj = params.get("pageSize");
+        if (pageNumObj != null && pageSizeObj != null) {
+            int pageNum = Integer.parseInt(pageNumObj.toString());
+            int pageSize = Integer.parseInt(pageSizeObj.toString());
+            int fromIndex = (pageNum - 1) * pageSize;
+            if (fromIndex < 0) {
+                fromIndex = 0;
+            }
+            int toIndex = Math.min(fromIndex + pageSize, result.size());
+            if (fromIndex > result.size()) {
+                paged = List.of();
+            } else {
+                paged = new ArrayList<>(result.subList(fromIndex, toIndex));
+            }
+        }
+
+        return AjaxResult.success(paged);
+    }
+
+    /**
      * 查询设备详情
      * @param iotId
      * @return

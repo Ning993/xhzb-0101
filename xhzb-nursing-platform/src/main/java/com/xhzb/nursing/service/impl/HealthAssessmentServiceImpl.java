@@ -21,6 +21,7 @@ import com.xhzb.nursing.domain.dto.health.ElderAssessmentDto;
 import com.xhzb.nursing.service.IHealthAssessmentDataCollectionService;
 import com.xhzb.nursing.service.IHealthAssessmentReportService;
 import com.xhzb.oss.client.OSSAliyunFileStorageService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,7 @@ import java.util.Map;
  * @author ruoyi
  * @date 2026-04-01
  */
+@Slf4j
 @Service
 public class HealthAssessmentServiceImpl extends ServiceImpl<HealthAssessmentMapper, HealthAssessment> implements IHealthAssessmentService {
     @Autowired
@@ -228,15 +230,33 @@ public class HealthAssessmentServiceImpl extends ServiceImpl<HealthAssessmentMap
         }
         //提示词
         String prompt = getAbilityPrompt(abilityRating, mentalStateRating, perceptionAndCommunicationRating, socialParticipationRating, fall, choking, suicide, lost, coma, dementia, mentalIllness, cognitiveImpairment);
-        String assessmentResult = chatClientByAssessment.prompt().user(prompt).call().content();
-        System.out.println(assessmentResult);
-        if(StringUtils.isEmpty(assessmentResult)){
-            throw new BaseException("AI分析结果为空");
+        String assessmentResult;
+        try {
+            assessmentResult = chatClientByAssessment.prompt().user(prompt).call().content();
+            log.info("AI能力评估结果: {}", assessmentResult);
+            if(StringUtils.isEmpty(assessmentResult)){
+                assessmentResult = null;
+            }
+        } catch (Exception e) {
+            log.error("AI能力评估调用失败，使用兜底评估结果", e);
+            assessmentResult = null;
         }
         //替换markdown语法
-        assessmentResult = assessmentResult.replaceAll("```json","").replaceAll("```","");
+        if (assessmentResult != null) {
+            assessmentResult = assessmentResult.replaceAll("```json","").replaceAll("```","");
+        }
         //获取解析结果
-        JSONObject jsonObject = JSONUtil.parseObj(assessmentResult);
+        JSONObject jsonObject;
+        try {
+            jsonObject = JSONUtil.parseObj(assessmentResult);
+        } catch (Exception e) {
+            log.error("AI能力评估结果解析失败，使用兜底评估结果", e);
+            jsonObject = null;
+        }
+        if (jsonObject == null) {
+            String fallbackLevel = abilityLevelToName(abilityRating);
+            jsonObject = JSONUtil.parseObj(String.format("{\"preLevel\":\"%s\",\"finalLevel\":\"%s\",\"reason\":\"AI评估服务暂不可用，采用基础能力等级\"}", fallbackLevel, fallbackLevel));
+        }
         String preLevel = jsonObject.getStr("preLevel");
         String finalLevel = jsonObject.getStr("finalLevel");
         String reason = jsonObject.getStr("reason");
@@ -245,13 +265,31 @@ public class HealthAssessmentServiceImpl extends ServiceImpl<HealthAssessmentMap
 
         // 老人体检报告AI分析
         String healthPrompt = getHealthPrompt(dto.getHealthAssessmentDto().getRecent30Days().getMedicalReport());
-        String healthResult = chatClientByAssessment.prompt().user(healthPrompt).call().content();
-        if(StringUtils.isEmpty(healthResult)){
-            throw new BaseException("AI分析结果为空");
+        String healthResult;
+        try {
+            healthResult = chatClientByAssessment.prompt().user(healthPrompt).call().content();
+            log.info("AI体检报告分析结果: {}", healthResult);
+            if(StringUtils.isEmpty(healthResult)){
+                healthResult = null;
+            }
+        } catch (Exception e) {
+            log.error("AI体检报告分析调用失败，使用兜底结果", e);
+            healthResult = null;
         }
         //替换markdown语法
-        healthResult = healthResult.replaceAll("```json","").replaceAll("```","");
-        JSONObject healthJsonObj = JSONUtil.parseObj(healthResult);
+        if (healthResult != null) {
+            healthResult = healthResult.replaceAll("```json","").replaceAll("```","");
+        }
+        JSONObject healthJsonObj;
+        try {
+            healthJsonObj = JSONUtil.parseObj(healthResult);
+        } catch (Exception e) {
+            log.error("AI体检报告分析结果解析失败，使用兜底结果", e);
+            healthJsonObj = null;
+        }
+        if (healthJsonObj == null) {
+            healthJsonObj = JSONUtil.parseObj("{\"healthScore\":0,\"riskLevel\":\"健康\",\"abnormalData\":[],\"systemScore\":{\"breathingSystem\":0,\"digestiveSystem\":0,\"endocrineSystem\":0,\"immuneSystem\":0,\"circulatorySystem\":0,\"urinarySystem\":0,\"motionSystem\":0,\"senseSystem\":0},\"summarize\":\"AI体检报告分析服务暂不可用，未生成具体分析结果\"}");
+        }
 
         //保存分析后的报表信息
         HealthAssessmentReport report = new HealthAssessmentReport();
@@ -355,6 +393,16 @@ public class HealthAssessmentServiceImpl extends ServiceImpl<HealthAssessmentMap
                 }
                 """;
         return prompt.formatted(content);
+    }
+
+    private static String abilityLevelToName(String rating) {
+        switch (rating == null ? "" : rating.trim()) {
+            case "0": return "能力完好";
+            case "1": return "轻度失能";
+            case "2": return "中度失能";
+            case "3": return "重度失能";
+            default: return "能力完好";
+        }
     }
 
     private static String getAbilityPrompt(String abilityRating, String mentalStateRating, String perceptionAndCommunicationRating, String socialParticipationRating, Integer fall, Integer choking, Integer suicide, Integer lost, Integer coma, String dementia, String mentalIllness, String cognitiveImpairment) {

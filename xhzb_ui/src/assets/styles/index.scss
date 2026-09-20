@@ -144,6 +144,12 @@ a:hover {
   &:hover,&:active,&:visited{
     color: $--color-main;
   }
+  // 弹窗关闭后焦点会还原到该按钮，保持主色避免变淡；
+  // 需提高特异性覆盖 Element Plus is-link 的 hover/focus 变浅样式
+  &.el-button.is-link:hover,
+  &.el-button.is-link:focus {
+    color: $--color-main;
+  }
   // 禁用的颜色
   &.disabled {
     color: $base-color-bk4;

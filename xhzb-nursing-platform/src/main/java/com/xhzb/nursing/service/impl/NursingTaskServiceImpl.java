@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -292,4 +293,82 @@ public class NursingTaskServiceImpl extends ServiceImpl<NursingTaskMapper, Nursi
 
         return nursingTask;
     }
+
+    /**
+     * 查询护理任务列表
+     *
+     * @param nursingTask 护理任务查询条件
+     * @return 护理任务集合
+     */
+    @Override
+    public List<NursingTask> selectNursingTaskList(NursingTask nursingTask) {
+        return baseMapper.selectNursingTaskList(nursingTask);
+    }
+
+    /**
+     * 查询护理任务详情
+     *
+     * @param id 护理任务主键
+     * @return 护理任务
+     */
+    @Override
+    public NursingTask selectNursingTaskById(Long id) {
+        return getById(id);
+    }
+
+    /**
+     * 取消护理任务
+     *
+     * @param taskId 任务ID
+     * @param reason 取消原因
+     */
+    @Override
+    public void cancelTask(Long taskId, String reason) {
+        NursingTask nursingTask = getById(taskId);
+        if (ObjectUtil.isEmpty(nursingTask)) {
+            throw new com.xhzb.common.exception.base.BaseException("护理任务不存在");
+        }
+        nursingTask.setStatus(3);
+        nursingTask.setCancelReason(reason);
+        updateById(nursingTask);
+    }
+
+    /**
+     * 执行护理任务
+     *
+     * @param taskId 任务ID
+     * @param estimatedServerTime 预计服务时间
+     * @param taskImage 执行图片
+     * @param mark 执行记录
+     */
+    @Override
+    public void executeTask(Long taskId, String estimatedServerTime, String taskImage, String mark) {
+        NursingTask nursingTask = getById(taskId);
+        if (ObjectUtil.isEmpty(nursingTask)) {
+            throw new com.xhzb.common.exception.base.BaseException("护理任务不存在");
+        }
+        nursingTask.setStatus(2);
+        nursingTask.setRealServerTime(LocalDateTime.now());
+        nursingTask.setMark(mark);
+        nursingTask.setTaskImage(taskImage);
+        updateById(nursingTask);
+    }
+
+    /**
+     * 修改护理任务预计服务时间
+     *
+     * @param taskId 任务ID
+     * @param estimatedServerTime 新的预计服务时间
+     */
+    @Override
+    public void updateTaskTime(Long taskId, String estimatedServerTime) {
+        NursingTask nursingTask = getById(taskId);
+        if (ObjectUtil.isEmpty(nursingTask)) {
+            throw new com.xhzb.common.exception.base.BaseException("护理任务不存在");
+        }
+        LocalDateTime time = LocalDateTime.parse(estimatedServerTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        nursingTask.setEstimatedServerTime(time);
+        updateById(nursingTask);
+    }
+
 }

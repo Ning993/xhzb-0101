@@ -46,3 +46,9 @@ nbdist/
 !*/build/*.java
 !*/build/*.html
 !*/build/*.xml
+
+######################################################################
+# Local sensitive / backup files (do not commit)
+bin/token.txt
+bin/*.sql
+*.bak

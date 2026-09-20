@@ -1,5 +1,6 @@
 package com.xhzb.nursing.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.xhzb.common.annotation.Excel;
 import com.xhzb.common.core.domain.BaseEntity;
@@ -9,7 +10,7 @@ import java.time.LocalDateTime;
 
 /**
  * 护理任务对象 nursing_task
- * 
+ *
  * @author ruoyi
  * @date 2024-09-27
  */
@@ -70,4 +71,16 @@ public class NursingTask extends BaseEntity
     /** 执行图片 */
     @Excel(name = "执行图片")
     private String taskImage;
+
+    /** 查询字段：预计服务时间范围开始（不映射数据库） */
+    @TableField(exist = false)
+    private String startTime;
+
+    /** 查询字段：预计服务时间范围结束（不映射数据库） */
+    @TableField(exist = false)
+    private String endTime;
+
+    /** 查询字段：护理员ID，用于FIND_IN_SET查询（不映射数据库） */
+    @TableField(exist = false)
+    private Long nurseId;
 }

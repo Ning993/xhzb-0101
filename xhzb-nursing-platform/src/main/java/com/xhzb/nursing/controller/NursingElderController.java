@@ -18,7 +18,7 @@ import java.util.List;
 
 /**
  * 护理员老人关联Controller
- * 
+ *
  * @author ruoyi
  * @date 2024-05-28
  */
@@ -95,5 +95,17 @@ public class NursingElderController extends BaseController
     public AjaxResult remove(@PathVariable Long[] ids)
     {
         return toAjax(nursingElderService.deleteNursingElderByIds(ids));
+    }
+
+    /**
+     * 批量给选中的老人设置护理员
+     */
+    @PreAuthorize("@ss.hasPermi('elder:elder:edit')")
+    @Log(title = "护理员老人关联", businessType = BusinessType.UPDATE)
+    @PostMapping("/setNursing")
+    public AjaxResult setNursing(@RequestBody List<NursingElderDto> list)
+    {
+        nursingElderService.setNursing(list);
+        return success();
     }
 }

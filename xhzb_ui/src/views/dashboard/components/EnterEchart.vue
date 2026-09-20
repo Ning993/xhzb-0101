@@ -1,5 +1,5 @@
 <template>
-  <div id="chart" ref="EcharRef" class="monitorContainer"></div>
+  <div ref="EcharRef" class="monitorContainer"></div>
 </template>
 
 <script setup>
@@ -8,7 +8,7 @@ import * as echarts from 'echarts'
 
 const props = defineProps({
   allDateArr: {
-    type: Array,
+    type: [Array, Object],
     default: () => []
   },
   allTimeArr: {
@@ -36,21 +36,19 @@ watch(props, (val) => {
   setOption()
 })
 onMounted(()=>{
+  if (!EcharRef.value) return
+  myChart.value = echarts.init(EcharRef.value)
   baseData.value = props.allDateArr;
   baseTime.value = props.allTimeArr;
   setOption();
-  if (!EcharRef.value) return
-  // 销毁已有实例，避免内存泄漏
-  if (myChart.value) {
-    myChart.value.dispose()
-  }
-  myChart.value = echarts.init(EcharRef.value)
   // 监听窗口大小变化
-    window.addEventListener('resize', resizeChart)
-})
+  window.addEventListener('resize', resizeChart)
+}))
 const setOption = () => {
-  const chartDom = document.getElementById('chart')
-  const myChart = echarts.init(chartDom)
+  const chartDom = EcharRef.value
+  if (!myChart.value) {
+    myChart.value = echarts.init(chartDom)
+  }
   let option = null
   nextTick(() => {
     setTimeout(() => {
@@ -125,7 +123,7 @@ const setOption = () => {
         ]
       }
 
-      myChart.setOption(option)
+      myChart.value.setOption(option)
     }, 10)
   })
 }

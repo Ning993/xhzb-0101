@@ -1,5 +1,5 @@
 <template>
-  <div id="main" ref="EcharRef" class="monitorContainer"></div>
+  <div ref="EcharRef" class="monitorContainer"></div>
 </template>
 
 <script setup>
@@ -54,7 +54,7 @@ const handleResize = () => {
 
 const initChart = () => {
   // 确保容器存在
-  const chartDom = document.getElementById('main');
+  const chartDom = EcharRef.value;
   if (!chartDom) {
     console.error('找不到图表容器');
     return;

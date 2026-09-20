@@ -26,7 +26,6 @@
   <Warn
     :visible="visibleWarn"
     :data="warnData"
-    :time="time"
     @handleSubmit="handleSubmit"
     @handleClose="handleWarnClose"
   ></Warn>
@@ -44,6 +43,7 @@ import useAppStore from '@/store/modules/app';
 import useSettingsStore from '@/store/modules/settings';
 import { onMounted } from 'vue';
 import useUserStore from '@/store/modules/user';
+import { useRouter } from 'vue-router';
 const settingsStore = useSettingsStore();
 const userStore = useUserStore();
 const theme = computed(() => settingsStore.theme);
@@ -134,6 +134,12 @@ const setwebSocket = () => {
 // 关闭警告弹层
 const handleWarnClose = () => {
   visibleWarn.value = false;
+};
+// 报警弹层"查看"：关闭弹层并跳转到报警数据页
+const router = useRouter();
+const handleSubmit = () => {
+  visibleWarn.value = false;
+  router.push('/nursing/alertData');
 };
 </script>
 

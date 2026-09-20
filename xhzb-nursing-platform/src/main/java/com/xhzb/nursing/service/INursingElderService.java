@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * 护理员老人关联Service接口
- * 
+ *
  * @author ruoyi
  * @date 2024-05-28
  */
@@ -16,7 +16,7 @@ public interface INursingElderService extends IService<NursingElder>
 {
     /**
      * 查询护理员老人关联
-     * 
+     *
      * @param id 护理员老人关联主键
      * @return 护理员老人关联
      */
@@ -24,7 +24,7 @@ public interface INursingElderService extends IService<NursingElder>
 
     /**
      * 查询护理员老人关联列表
-     * 
+     *
      * @param nursingElder 护理员老人关联
      * @return 护理员老人关联集合
      */
@@ -32,7 +32,7 @@ public interface INursingElderService extends IService<NursingElder>
 
     /**
      * 新增护理员老人关联
-     * 
+     *
      * @param nursingElder 护理员老人关联
      * @return 结果
      */
@@ -40,7 +40,7 @@ public interface INursingElderService extends IService<NursingElder>
 
     /**
      * 修改护理员老人关联
-     * 
+     *
      * @param nursingElder 护理员老人关联
      * @return 结果
      */
@@ -48,7 +48,7 @@ public interface INursingElderService extends IService<NursingElder>
 
     /**
      * 批量删除护理员老人关联
-     * 
+     *
      * @param ids 需要删除的护理员老人关联主键集合
      * @return 结果
      */
@@ -56,10 +56,17 @@ public interface INursingElderService extends IService<NursingElder>
 
     /**
      * 删除护理员老人关联信息
-     * 
+     *
      * @param id 护理员老人关联主键
      * @return 结果
      */
     public int deleteNursingElderById(Long id);
+
+    /**
+     * 批量给老人设置护理员
+     *
+     * @param list 老人-护理员关联DTO列表
+     */
+    public void setNursing(List<NursingElderDto> list);
 
 }

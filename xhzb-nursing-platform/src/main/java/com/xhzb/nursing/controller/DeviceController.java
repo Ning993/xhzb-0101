@@ -15,16 +15,17 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * 设备Controller
+ * 璁惧Controller
  * 
  * @author ruoyi
  * @date 2026-04-07
  */
 @RestController
 @RequestMapping("/nursing/device")
-@Tag(name = "设备相关接口")
+@Tag(name = "璁惧鐩稿叧鎺ュ彛")
 public class DeviceController extends BaseController
 {
     @Autowired
@@ -53,6 +54,11 @@ public class DeviceController extends BaseController
         return deviceService.queryServiceProperties(iotId);
     }
 
+    @PostMapping("/queryDevicePropertyStatus")
+    public AjaxResult queryDevicePropertyStatus(@RequestBody Map<String, Object> params){
+        return deviceService.queryDevicePropertyStatus(params);
+    }
+
     @GetMapping("/{iotId}")
     public AjaxResult getInfo(@PathVariable String iotId){
         DeviceDetailVo deviceDetailVo = deviceService.getInfo(iotId);
@@ -77,11 +83,11 @@ public class DeviceController extends BaseController
     }
 
     /**
-     * 查询设备列表
+     * 鏌ヨ璁惧鍒楄〃
      */
     @PreAuthorize("@ss.hasPermi('nursing:device:list')")
     @GetMapping("/list")
-    @Operation(summary = "查询设备列表")
+    @Operation(summary = "鏌ヨ璁惧鍒楄〃")
     public TableDataInfo list(Device device)
     {
         startPage();

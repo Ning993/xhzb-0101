@@ -1,6 +1,7 @@
 package com.xhzb.nursing.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.xhzb.common.core.domain.AjaxResult;
 import com.xhzb.nursing.domain.Device;
@@ -95,6 +96,13 @@ public interface IDeviceService extends IService<Device>
      * @return
      */
     AjaxResult queryServiceProperties(String iotId);
+
+    /**
+     * 查询设备物模型属性状态
+     * @param params 查询参数（deviceId/iotId 等）
+     * @return
+     */
+    AjaxResult queryDevicePropertyStatus(Map<String, Object> params);
 
     /**
      * 查询产品

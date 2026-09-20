@@ -31,8 +31,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectNursingTaskList" parameterType="NursingTask" resultMap="NursingTaskResult">
         <include refid="selectNursingTaskVo"/>
-        <where>  
-            <if test="nursingId != null "> and nursing_id = #{nursingId}</if>
+        <where>
+            <if test="nurseId != null "> and FIND_IN_SET(#{nurseId}, nursing_id)</if>
             <if test="projectId != null "> and project_id = #{projectId}</if>
             <if test="projectName != null  and projectName != ''"> and project_name like concat('%', #{projectName}, '%')</if>
             <if test="elderId != null "> and elder_id = #{elderId}</if>
@@ -44,6 +44,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="cancelReason != null  and cancelReason != ''"> and cancel_reason = #{cancelReason}</if>
             <if test="status != null "> and status = #{status}</if>
             <if test="taskImage != null  and taskImage != ''"> and task_image = #{taskImage}</if>
+            <if test="startTime != null and startTime != '' and endTime != null and endTime != ''"> and estimated_server_time between #{startTime} and #{endTime}</if>
         </where>
     </select>
     
